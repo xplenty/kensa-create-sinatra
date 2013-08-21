@@ -21,7 +21,7 @@ class App < Sinatra::Base
     def authorized?
       @auth ||=  Rack::Auth::Basic::Request.new(request.env)
       @auth.provided? && @auth.basic? && @auth.credentials &&
-      @auth.credentials == [ENV['HEROKU_USERNAME'], ENV['HEROKU_PASSWORD']]
+      @auth.credentials == [ENV['XPLENTY_USERNAME'], ENV['XPLENTY_PASSWORD']]
     end
 
     def show_request
@@ -46,8 +46,8 @@ class App < Sinatra::Base
 
   # sso landing page
   get "/" do
-    halt 403, 'not logged in' unless session[:heroku_sso]
-    #response.set_cookie('heroku-nav-data', value: session[:heroku_sso])
+    halt 403, 'not logged in' unless session[:xplenty_sso]
+    #response.set_cookie('xplenty-nav-data', value: session[:xplenty_sso])
     @resource = session[:resource]
     @email    = session[:email]
     haml :index
@@ -61,15 +61,15 @@ class App < Sinatra::Base
 
     halt 404 unless session[:resource]   = get_resource
 
-    response.set_cookie('heroku-nav-data', value: params['nav-data'])
-    session[:heroku_sso] = params['nav-data']
+    response.set_cookie('xplenty-nav-data', value: params['nav-data'])
+    session[:xplenty_sso] = params['nav-data']
     session[:email]      = params[:email]
 
     redirect '/'
   end
 
   # sso sign in
-  get "/heroku/resources/:id" do
+  get "/xplenty/resources/:id" do
     show_request
     sso
   end
@@ -80,7 +80,7 @@ class App < Sinatra::Base
   end
 
   # provision
-  post '/heroku/resources' do
+  post '/xplenty/resources' do
     show_request
     protected!
     if json_body['region'] != 'amazon-web-services::us-east-1'
@@ -88,7 +88,7 @@ class App < Sinatra::Base
       body({:error => 'Region is not supported by this provider.'}.to_json)
     end
     @@resources << resource = Resource.new(:id => @@resources.size + 1,
-                            :heroku_id => json_body['heroku_id'],
+                            :xplenty_id => json_body['xplenty_id'],
                             :plan => json_body.fetch('plan', 'test'),
                             :region => json_body['region'],
                             :callback_url => json_body['callback_url'],
@@ -102,7 +102,7 @@ class App < Sinatra::Base
   end
 
   # deprovision
-  delete '/heroku/resources/:id' do
+  delete '/xplenty/resources/:id' do
     show_request
     protected!
     @@resources.delete(get_resource)
@@ -110,7 +110,7 @@ class App < Sinatra::Base
   end
 
   # plan change
-  put '/heroku/resources/:id' do
+  put '/xplenty/resources/:id' do
     show_request
     protected!
     resource = get_resource

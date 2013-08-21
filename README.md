@@ -1,11 +1,11 @@
 ## `kensa create my_addon --template sinatra`
 
 this repository is a sinatra template application for use with the 
-Heroku <a href="http://github.com/heroku/kensa">kensa</a> gem
+Xplenty <a href="http://github.com/xplenty/xplenty-kensa">xplenty-kensa</a> gem
 
 clone it via:
 
-    > gem install kensa
+    > gem install xplenty-kensa
     > kensa create my_addon --template sinatra
     > cd my_addon
     > bundle install
